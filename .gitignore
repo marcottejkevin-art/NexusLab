@@ -1,0 +1,13 @@
+# Secrets and runtime data — never commit these
+hub/config.yaml
+hub/data/
+*.env
+
+# Python / editors
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+.vscode/
+.idea/

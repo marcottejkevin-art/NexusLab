@@ -1,0 +1,14 @@
+[Unit]
+Description=NexusLab monitoring agent
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/etc/nexuslab-agent.env
+WorkingDirectory=/opt/nexuslab-agent
+ExecStart=/opt/nexuslab-agent/venv/bin/uvicorn agent:app --host 0.0.0.0 --port ${NEXUSLAB_PORT}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

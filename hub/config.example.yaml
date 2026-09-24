@@ -1,0 +1,69 @@
+# NexusLab hub configuration
+# Copy this file to config.yaml and fill in your own values:
+#   cp config.example.yaml config.yaml
+# config.yaml is in .gitignore — it holds tokens and passwords, never commit it.
+
+poll_seconds: 3             # how often CPU/RAM/disk/GPU refresh
+container_poll_seconds: 10  # how often containers, Pi-hole and Ollama refresh
+history_points: 120         # chart length (120 x 3 s = 6 minutes)
+
+# Dashboard login. Leave password empty to turn the login off (not recommended:
+# the dashboard can stop containers and shut down machines).
+auth:
+  username: admin
+  password: ""
+  session_days: 30          # how long a sign-in lasts
+
+devices:
+  # Every device runs the agent (agent/install-agent.sh). The installer prints
+  # the token; find it later with: sudo grep TOKEN /etc/nexuslab-agent.env
+
+  - id: server                    # short unique id, used in URLs
+    name: Home Server             # shown in the dashboard
+    url: http://192.168.1.10:9101
+    token: PASTE_AGENT_TOKEN
+    docker: control               # off | monitor (view + logs) | control (start/stop/restart)
+
+  - id: ai-pc
+    name: AI PC
+    url: http://192.168.1.11:9101
+    token: PASTE_AGENT_TOKEN
+    gpu: true                     # show the NVIDIA GPU section
+    docker: monitor
+    # mac: "aa:bb:cc:dd:ee:ff"    # optional: normally learned automatically for Start (Wake-on-LAN)
+
+  - id: pi
+    name: Raspberry Pi
+    url: http://192.168.1.12:9101
+    token: PASTE_AGENT_TOKEN
+    pihole:
+      url: http://192.168.1.12    # Pi-hole web address
+      version: 6                  # 6 (current) or 5
+      password: ""                # v6: web password or an app password
+      api_token: ""               # v5 only: Settings > API > Show token
+      verify_tls: false
+
+  - id: mini
+    name: Mini PC
+    url: http://192.168.1.13:9101
+    token: PASTE_AGENT_TOKEN
+
+# Discord alerts and the daily summary (all optional)
+alerts:
+  discord_webhook: ""             # Channel settings > Integrations > Webhooks > Copy URL
+  device_offline: true
+  offline_after_seconds: 60
+  high_temp: true
+  cpu_temp_c: 85
+  gpu_temp_c: 83
+  temp_sustain_seconds: 60        # must stay hot this long before alerting
+  container_stopped: true
+  message_on_start: true          # post "NexusLab is running" when the hub starts
+  daily_summary: "08:00"          # 24-hour time; "" turns it off
+  timezone: America/Los_Angeles   # any tz database name, e.g. Europe/London
+
+# Chat tab (needs a device whose agent can reach Ollama)
+chat:
+  owner: ""                       # your name, so the assistant says "Kevin's homelab"
+  model: ""                       # default model; empty = whatever is loaded
+  num_ctx: 8192                   # context window sent to Ollama

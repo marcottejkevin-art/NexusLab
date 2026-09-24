@@ -1,0 +1,10 @@
+services:
+  nexuslab:
+    build: .
+    container_name: nexuslab
+    restart: unless-stopped
+    network_mode: host
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8484"]
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data

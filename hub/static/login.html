@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in to NexusLab</title>
+<meta name="theme-color" content="#10151E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NexusLab">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/static/icons/favicon-32.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10151E; --card:#181F2B; --line:#2A3445; --text:#E6EAF1; --muted:#8F9BAE;
+  --accent:#3CC4F5; --accent-strong:#1F7BFF; --hot:#F0645C; --good:#54C98A; --field:#121824;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;min-height:100%;color:var(--text);
+  font:400 15px/1.5 Sora,"Segoe UI",Roboto,system-ui,sans-serif;
+  background:
+    radial-gradient(900px 600px at 50% 18%, rgba(20,120,255,.22), transparent 70%),
+    var(--bg);
+  display:grid;place-items:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));
+}
+/* faint network of nodes behind the card */
+.net{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:.5}
+main{position:relative;width:100%;max-width:380px}
+.mark{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:22px}
+.logo-full{width:min(250px,64vw);height:auto;filter:drop-shadow(0 14px 40px rgba(20,130,255,.35))}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1{margin:18px 0 4px;font-size:30px;font-weight:700;letter-spacing:-.03em}
+.sub{margin:0;color:var(--muted);font-size:14px}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--muted)}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px rgba(84,201,138,.2)}
+form{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px}
+label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin:0 0 6px}
+.field{position:relative;margin-bottom:16px}
+input{
+  width:100%;background:var(--field);border:1px solid var(--line);border-radius:12px;
+  padding:13px 14px;font:inherit;font-size:16px;color:var(--text);outline:none;transition:border-color .15s
+}
+input:focus{border-color:var(--accent)}
+.pw input{padding-right:70px}
+.toggle{position:absolute;right:6px;bottom:7px;background:none;border:0;color:var(--accent);font:inherit;font-size:13px;font-weight:600;padding:8px 10px;cursor:pointer;border-radius:8px}
+.toggle:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.go{
+  width:100%;margin-top:6px;border:0;border-radius:12px;padding:14px;cursor:pointer;
+  font:inherit;font-size:15px;font-weight:600;color:#fff;
+  background:linear-gradient(90deg,#1F7BFF,#17B8E0 60%,#22D3A0);
+}
+button.go:disabled{opacity:.6;cursor:default}
+.err{min-height:1.4em;margin:12px 0 0;color:var(--hot);font-size:13.5px;text-align:center}
+form.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){form.shake{animation:none}}
+</style>
+</head>
+<body>
+<svg class="net" aria-hidden="true" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">
+  <g stroke="#2A3445" stroke-width="1" fill="none">
+    <path d="M40 120 L130 60 L230 140 L340 80 M130 60 L150 230 L60 300 M230 140 L300 260 L370 220 M60 620 L150 700 L260 640 L350 720 M260 640 L300 540 L380 580 M20 480 L90 540 L150 700"/>
+  </g>
+  <g fill="#2F3A52">
+    <circle cx="40" cy="120" r="3"/><circle cx="130" cy="60" r="3"/><circle cx="230" cy="140" r="3"/><circle cx="340" cy="80" r="3"/>
+    <circle cx="150" cy="230" r="3"/><circle cx="60" cy="300" r="3"/><circle cx="300" cy="260" r="3"/><circle cx="370" cy="220" r="3"/>
+    <circle cx="60" cy="620" r="3"/><circle cx="150" cy="700" r="3"/><circle cx="260" cy="640" r="3"/><circle cx="350" cy="720" r="3"/>
+    <circle cx="300" cy="540" r="3"/><circle cx="380" cy="580" r="3"/><circle cx="20" cy="480" r="3"/><circle cx="90" cy="540" r="3"/>
+  </g>
+</svg>
+<main>
+  <div class="mark">
+    <img class="logo-full" src="/static/icons/logo-full.png" alt="NexusLab: your homelab, in your hands" width="640" height="640">
+    <h1 class="sr">Sign in to NexusLab</h1>
+    <span class="status"><i></i>Hub online</span>
+  </div>
+  <form id="f" novalidate>
+    <div class="field">
+      <label for="u">Username</label>
+      <input id="u" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" value="admin" required>
+    </div>
+    <div class="field pw">
+      <label for="p">Password</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" required>
+      <button type="button" class="toggle" id="t" aria-controls="p" aria-pressed="false">Show</button>
+    </div>
+    <button class="go" id="go" type="submit">Sign in</button>
+    <p class="err" id="err" role="alert"></p>
+  </form>
+</main>
+<script>
+const f = document.getElementById('f'), p = document.getElementById('p'), u = document.getElementById('u');
+const go = document.getElementById('go'), err = document.getElementById('err'), t = document.getElementById('t');
+(u.value ? p : u).focus();
+t.onclick = () => {
+  const show = p.type === 'password';
+  p.type = show ? 'text' : 'password';
+  t.textContent = show ? 'Hide' : 'Show';
+  t.setAttribute('aria-pressed', show);
+};
+f.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!p.value) { err.textContent = 'Enter your password.'; p.focus(); return; }
+  go.disabled = true; go.textContent = 'Signing in…'; err.textContent = '';
+  try {
+    const r = await fetch('/api/login', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({username: u.value.trim(), password: p.value})});
+    if (r.ok) { location.replace('/'); return; }
+    let msg = 'Wrong username or password.';
+    try { msg = (await r.json()).detail || msg; } catch {}
+    err.textContent = msg;
+    f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake');
+    p.select();
+  } catch {
+    err.textContent = "Can't reach the NexusLab hub. Check you're on your home network.";
+  }
+  go.disabled = false; go.textContent = 'Sign in';
+});
+</script>
+</body>
+</html>

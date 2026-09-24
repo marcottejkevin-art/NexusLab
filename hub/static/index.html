@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NexusLab</title>
+<link rel="icon" type="image/png" href="/static/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#10151E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NexusLab">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1F6; --card:#FFFFFF; --soft:#E3E8F0; --line:#D6DDE7; --text:#16202C; --muted:#5E6A7B;
+  --accent:#4656D0; --accent-soft:#E2E5FA; --warn:#C07A12; --hot:#CF3B34; --good:#23945A;
+  --track:#E4E8EF; --btn:#FFFFFF;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10151E; --card:#181F2B; --soft:#1F2836; --line:#2A3445; --text:#E6EAF1; --muted:#8F9BAE;
+    --accent:#8C97F2; --accent-soft:#262F52; --warn:#EBA945; --hot:#F0645C; --good:#54C98A;
+    --track:#263041; --btn:#1F2836; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10151E; --card:#181F2B; --soft:#1F2836; --line:#2A3445; --text:#E6EAF1; --muted:#8F9BAE;
+  --accent:#8C97F2; --accent-soft:#262F52; --warn:#EBA945; --hot:#F0645C; --good:#54C98A;
+  --track:#263041; --btn:#1F2836; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.5 Sora,"Segoe UI",Roboto,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+
+header{padding:22px 0 14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{border-radius:8px;display:block}
+.logout{margin-left:auto;color:var(--muted);font-size:13.5px;text-decoration:none;padding:6px 10px;border:1px solid var(--line);border-radius:9px}
+.logout:hover{color:var(--text);border-color:var(--accent)}
+.brand{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.summary{color:var(--muted);font-size:13.5px;display:flex;gap:12px;flex-wrap:wrap}
+.summary strong{color:var(--text);font-weight:600}
+.demo-tag{font-size:12.5px;padding:2px 9px;border-radius:20px;background:var(--accent-soft);color:var(--accent)}
+.banner p{margin:0 0 12px;padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--hot)}
+
+/* device tabs */
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.tab{all:unset;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tab-top{display:flex;align-items:center;gap:8px}
+.tab-name{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab-stats{font-size:12.5px;color:var(--muted)}
+.minibar{height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.minibar i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.on{background:var(--good)} .dot.bad{background:var(--hot)} .dot.warn{background:var(--warn)}
+
+/* detail */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px}
+.dhead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.dhead h2{margin:0;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.dhead .meta{color:var(--muted);font-size:13.5px}
+.rings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ring{display:grid;justify-items:center;text-align:center;gap:2px;padding:6px 0}
+.ring .dial{position:relative;width:min(118px,100%);aspect-ratio:1}
+.ring svg{width:100%;height:100%;transform:rotate(135deg)}
+.ring .trk{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.ring .arc{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .5s,stroke .3s}
+.ring.w .arc{stroke:var(--warn)} .ring.h .arc{stroke:var(--hot)}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;font-size:21px;font-weight:600;letter-spacing:-.02em}
+.ring .lab{font-weight:600;font-size:14px;margin-top:-6px}
+.ring .sub{font-size:12px;color:var(--muted);min-height:1.3em}
+
+.sec-head{display:flex;align-items:baseline;gap:10px;margin:0 0 12px}
+.sec-head h3{margin:0;font-size:17px;font-weight:600}
+.sec-head .aside{margin-left:auto;color:var(--muted);font-size:13px}
+.chart svg{display:block;width:100%;height:150px}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart text{fill:var(--muted);font-size:10px}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:currentColor}
+.legend .scale{margin-left:auto}.legend .scale::before{display:none}
+.lc{color:var(--accent)} .lr{color:var(--muted)} .lg{color:var(--warn)}
+.note{margin:0;color:var(--muted);font-size:14px}
+.note.err{color:var(--hot)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.two .card{margin-bottom:0}
+
+/* view switch */
+.views{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.vbtn{all:unset;cursor:pointer;padding:6px 14px;border-radius:8px;font-size:14px;font-weight:600;color:var(--muted)}
+.vbtn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.vbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* chat */
+.chat{display:flex;flex-direction:column;gap:12px;padding-bottom:8px}
+.chat-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chat-head h2{margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em;margin-right:auto}
+.msel{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.msel select{background:var(--btn);border:1px solid var(--line);border-radius:9px;padding:6px 8px;max-width:190px;font-size:13.5px}
+.chat-log{display:flex;flex-direction:column;gap:12px;min-height:40vh}
+.msg{max-width:88%;border-radius:16px;padding:11px 15px;font-size:15px;line-height:1.55;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--accent-soft);color:var(--text);border-bottom-right-radius:5px;white-space:pre-wrap}
+.msg.bot{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg.bot p{margin:0 0 8px}.msg.bot p:last-child{margin-bottom:0}
+.msg.bot ul{margin:2px 0 10px;padding-left:20px}.msg.bot li{margin:2px 0}
+.msg.bot .mh{font-weight:700;margin-top:6px}
+.msg.bot code{font:13px ui-monospace,Menlo,Consolas,monospace;background:var(--soft);padding:1px 5px;border-radius:5px}
+.msg .who{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.msg.err{border-color:var(--hot);color:var(--hot)}
+.typing{display:inline-flex;gap:4px;padding:4px 0}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.chat-empty{color:var(--muted);font-size:14.5px;margin:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip-btn{all:unset;cursor:pointer;font-size:13.5px;padding:7px 12px;border-radius:20px;border:1px solid var(--line);background:var(--card)}
+.chip-btn:hover{border-color:var(--accent)}
+.chip-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chat-bar{position:sticky;bottom:0;display:flex;gap:8px;align-items:flex-end;padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.chat-bar textarea{flex:1;resize:none;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px;font:inherit;font-size:16px;color:var(--text);max-height:140px;outline:none}
+.chat-bar textarea:focus{border-color:var(--accent)}
+.btn.send{background:var(--accent);border-color:var(--accent);color:#fff;min-height:44px;padding:0 18px;border-radius:12px;font-weight:600}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none;opacity:.6}}
+/* device power */
+.dact{margin-left:auto;display:flex;gap:8px}
+/* ollama */
+.om{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.om:first-child{border-top:0}
+.om-name{font-weight:600;overflow-wrap:anywhere}
+.om-meta{font-size:12.5px;color:var(--muted)}
+.om-bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--track);overflow:hidden}
+.om-bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.o-inst{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.o-inst summary{cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;list-style-position:inside}
+.o-inst .om:first-child{border-top:0}
+/* pi-hole */
+.ph{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.ph .big{font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.ph .k{color:var(--muted);font-size:13px}
+.ph-grid{display:grid;grid-template-columns:repeat(3,auto);gap:4px 26px;margin-left:auto}
+.ph-grid .v{font-size:19px;font-weight:600}
+.chip{font-size:12.5px;padding:2px 9px;border-radius:20px;background:var(--soft)}
+.chip.good{color:var(--good)} .chip.bad{color:var(--hot)}
+
+/* containers */
+.crow{display:grid;grid-template-columns:10px minmax(0,1fr) auto auto auto;gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.crow:first-child{border-top:0}
+.cn{font-weight:600} .ci{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs{font-size:13.5px;text-align:right;min-width:62px} .cs small{display:block;color:var(--muted);font-size:11.5px}
+.ca{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.btn{background:var(--btn);border:1px solid var(--line);border-radius:9px;padding:6px 12px;font-size:13px;font-weight:500;cursor:pointer;min-height:34px}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.danger{color:var(--hot)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.arm{background:var(--hot);border-color:var(--hot);color:#fff}
+
+dialog{border:1px solid var(--line);border-radius:16px;padding:0;background:var(--card);color:var(--text);width:min(960px,calc(100vw - 24px));max-height:calc(100dvh - 40px)}
+dialog::backdrop{background:rgba(8,12,20,.55)}
+.dlg-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.dlg-head h2{margin:0;font-size:18px;font-weight:600}
+.dlg-head .meta{margin-right:auto;color:var(--muted);font-size:13px}
+.dlg-head label{display:flex;align-items:center;gap:6px;font-size:13.5px}
+.dlg-head select{background:var(--btn);border:1px solid var(--line);border-radius:8px;padding:4px 6px}
+pre.logs{margin:0;padding:12px 16px;overflow:auto;height:min(65dvh,600px);font:12.5px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace;background:var(--bg);border-radius:0 0 16px 16px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--card);padding:9px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1} .toast.err{background:var(--hot);color:#fff}
+
+@media (max-width:760px){
+  .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rings{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two{grid-template-columns:1fr}
+  .card{padding:16px;border-radius:16px}
+  .dhead h2{font-size:26px}
+  .ph-grid{margin-left:0;grid-template-columns:repeat(3,auto)}
+  .crow{grid-template-columns:10px minmax(0,1fr) auto auto;grid-template-areas:"d n c m" "a a a a"}
+  .crow .dot{grid-area:d}.crow .cid{grid-area:n}.crow .c-cpu{grid-area:c}.crow .c-mem{grid-area:m}
+  .crow .ca{grid-area:a;justify-content:flex-start}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="/static/icons/icon-192.png" alt="" width="30" height="30"><h1 class="brand">NexusLab</h1>
+    <div class="summary" aria-live="polite">
+      <span id="online-count">Connecting…</span><span id="updated"></span>
+      <span id="demo-tag" class="demo-tag" hidden>Demo data</span>
+    </div>
+    <nav class="views" aria-label="View"><button class="vbtn" data-view="dash" aria-pressed="true">Dashboard</button><button class="vbtn" data-view="chat" aria-pressed="false">Chat</button></nav>
+    <a class="logout" id="logout" href="/logout" hidden>Log out</a>
+  </header>
+  <div class="banner" id="banner" hidden><p id="banner-text"></p></div>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Devices"></nav>
+  <main id="detail"></main>
+  <section id="chat" class="chat" hidden aria-label="Chat with NexusLab">
+    <div class="chat-head">
+      <h2>Ask NexusLab</h2>
+      <label class="msel">Model <select id="chat-model"></select></label>
+      <button class="btn" id="chat-new" type="button">New chat</button>
+    </div>
+    <div class="chat-log" id="chat-log" aria-live="polite"></div>
+    <div class="chips" id="chat-chips">
+      <button class="chip-btn" type="button">Check status of machines</button>
+      <button class="chip-btn" type="button">Anything I should worry about?</button>
+      <button class="chip-btn" type="button">How's the GPU doing?</button>
+      <button class="chip-btn" type="button">Pi-hole stats today</button>
+    </div>
+    <form class="chat-bar" id="chat-form">
+      <textarea id="chat-input" rows="1" placeholder="Ask about your machines…" aria-label="Message"></textarea>
+      <button class="btn send" id="chat-send" type="submit">Send</button>
+    </form>
+  </section>
+</div>
+
+<dialog id="logs">
+  <div class="dlg-head">
+    <h2 id="logs-title">Logs</h2><span class="meta" id="logs-meta"></span>
+    <label>Lines <select id="logs-tail"><option>100</option><option selected>300</option><option>1000</option></select></label>
+    <label><input type="checkbox" id="logs-follow" checked> Follow</label>
+    <button class="btn" id="logs-refresh">Refresh</button><button class="btn" id="logs-close">Close</button>
+  </div>
+  <pre class="logs" id="logs-body" tabindex="0"></pre>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+
+const DEMO = window.NEXUSLAB_DEMO === true || new URLSearchParams(location.search).has('demo');
+const POLL_MS = 3000;
+const SEGMENTS = 24;
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+
+function fmtBytes(b) {
+  if (b == null) return '–';
+  const u = ['B','KB','MB','GB','TB']; let i = 0;
+  while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+  return (b >= 100 || i === 0 ? b.toFixed(0) : b.toFixed(1)) + ' ' + u[i];
+}
+function fmtUptime(s) {
+  if (s == null) return '';
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`;
+}
+function fmtAgo(ts) {
+  if (!ts) return '';
+  const s = Math.max(0, Math.round(Date.now() / 1000 - ts));
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.floor(s / 60)}m ago` : `${Math.floor(s / 3600)}h ago`;
+}
+const fmtNum = n => n == null ? '–' : Number(n).toLocaleString();
+
+/* ---------------------------------------------------------------- API */
+async function jsonOrThrow(r) {
+  if (r.status === 401 && !DEMO) { location.href = '/login'; throw new Error('Login required'); }
+  if (!r.ok) {
+    let msg = `HTTP ${r.status}`;
+    try { msg = (await r.json()).detail || msg; } catch {}
+    throw new Error(msg);
+  }
+  return r;
+}
+const api = {
+  state: () => DEMO ? Promise.resolve(demo.state())
+    : fetch('api/state', {cache: 'no-store'}).then(jsonOrThrow).then(r => r.json()),
+  action: (dev, name, act) => DEMO ? demo.action(dev, name, act)
+    : fetch(`api/devices/${encodeURIComponent(dev)}/containers/${encodeURIComponent(name)}/${act}`, {method: 'POST'})
+        .then(jsonOrThrow).then(r => r.json()),
+  power: (dev, act) => DEMO ? new Promise(r => setTimeout(r, 600))
+    : fetch(`/api/devices/${encodeURIComponent(dev)}/power/${act}`, {method: 'POST'}).then(jsonOrThrow).then(r => r.json()),
+  ollama: (dev, act, model) => DEMO ? new Promise(r => setTimeout(r, 1200))
+    : fetch(`/api/devices/${encodeURIComponent(dev)}/ollama/${act}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({model})})
+        .then(jsonOrThrow).then(r => r.json()),
+  logs: (dev, name, tail) => DEMO ? Promise.resolve(demo.logs(dev, name, tail))
+    : fetch(`api/devices/${encodeURIComponent(dev)}/containers/${encodeURIComponent(name)}/logs?tail=${tail}`, {cache: 'no-store'})
+        .then(jsonOrThrow).then(r => r.text()),
+};
+
+
+const T = t => t == null ? null : (t - 20) / 80;   // temp 20–100 °C -> 0–1
+const tabs = $('#tabs'), detail = $('#detail');
+const pending = new Map();
+let lastState = null, selected = null, built = null;
+const ARC = 2 * Math.PI * 33 * .75;                  // 270° dial
+
+const ring = (k, label) => `
+  <div class="ring" data-k="${k}" role="meter" aria-label="${label}" aria-valuemin="0" aria-valuemax="100">
+    <div class="dial"><svg viewBox="0 0 80 80" aria-hidden="true">
+      <circle class="trk" cx="40" cy="40" r="33" stroke-dasharray="${ARC} 999"/>
+      <circle class="arc" cx="40" cy="40" r="33" stroke-dasharray="${ARC} 999" stroke-dashoffset="${ARC}"/>
+    </svg><div class="val">–</div></div>
+    <div class="lab">${label}</div><div class="sub"></div>
+  </div>`;
+
+function setRing(root, k, frac, val, sub, warn = .7, hot = .9) {
+  const r = root.querySelector(`.ring[data-k="${k}"]`); if (!r) return;
+  const f = frac == null ? 0 : clamp(frac);
+  r.querySelector('.arc').setAttribute('stroke-dashoffset', ARC * (1 - f));
+  r.querySelector('.val').textContent = val;
+  r.querySelector('.sub').textContent = sub || '';
+  r.className = 'ring' + (f > hot ? ' h' : f > warn ? ' w' : '');
+  r.setAttribute('aria-valuenow', Math.round(f * 100));
+}
+
+/* ---------- tabs */
+function renderTabs(state) {
+  if (tabs.children.length !== state.devices.length) {
+    tabs.innerHTML = state.devices.map(d => `
+      <button class="tab" role="tab" data-id="${esc(d.id)}" aria-selected="false">
+        <span class="tab-top"><span class="dot"></span><span class="tab-name">${esc(d.name)}</span></span>
+        <span class="tab-stats"></span><span class="minibar"><i></i></span>
+      </button>`).join('');
+  }
+  for (const d of state.devices) {
+    const b = tabs.querySelector(`[data-id="${CSS.escape(d.id)}"]`);
+    b.setAttribute('aria-selected', d.id === selected);
+    const m = d.metrics;
+    const off = !d.online && d.power_pending === 'shutdown', starting = !d.online && ['wake', 'reboot'].includes(d.power_pending);
+    b.querySelector('.dot').className = 'dot ' + (d.online ? 'on' : off ? '' : starting ? 'warn' : 'bad');
+    b.querySelector('.tab-stats').textContent = off ? 'Off' : starting ? 'Starting…' : !d.online ? 'Offline'
+      : m ? `CPU ${m.cpu.percent.toFixed(0)}%, ${m.cpu.temp_c != null ? Math.round(m.cpu.temp_c) + '\u00a0°C' : 'no temp'}` : '…';
+    b.querySelector('.minibar i').style.width = (m && d.online ? m.cpu.percent : 0) + '%';
+  }
+}
+tabs.addEventListener('click', e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  selected = b.dataset.id; built = null;
+  try { history.replaceState(null, '', '#' + selected); } catch {}
+  render(lastState);
+});
+
+/* ---------- detail */
+function build(d) {
+  const f = d.features, docker = f.docker === 'control' || f.docker === 'monitor';
+  detail.innerHTML = `
+    <section class="card" aria-label="${esc(d.name)}">
+      <div class="dhead"><h2>${esc(d.name)}</h2><span class="meta d-meta"></span>
+        <div class="dact"></div></div>
+      <p class="note err d-err" hidden></p>
+      <div class="rings">${ring('cpu','CPU')}${ring('ram','Memory')}${ring('disk','SSD')}${ring('temp','CPU temp')}</div>
+    </section>
+    ${f.gpu ? `<section class="card"><div class="sec-head"><h3 class="g-name">GPU</h3><span class="aside g-extra"></span></div>
+      <div class="rings">${ring('gutil','GPU load')}${ring('vram','VRAM')}${ring('gtemp','GPU temp')}${ring('gpow','Power')}</div></section>` : ''}
+    ${f.ollama ? `<section class="card"><div class="sec-head"><h3>Ollama</h3><span class="chip o-ver" hidden></span><span class="aside o-count"></span></div>
+      <div class="o-loaded"><p class="note">Loading models…</p></div>
+      <details class="o-inst"><summary>Installed models (<span class="o-n">0</span>)</summary><div class="o-list"></div></details>
+      <p class="note err o-err" hidden></p></section>` : ''}
+    <div class="${f.pihole || docker ? 'two' : ''}">
+      <section class="card chart"><div class="sec-head"><h3>Last 6 minutes</h3></div>
+        <svg viewBox="0 0 600 150" preserveAspectRatio="none" aria-hidden="true">
+          <line class="grid" x1="0" x2="600" y1="10" y2="10"/><line class="grid" x1="0" x2="600" y1="75" y2="75"/><line class="grid" x1="0" x2="600" y1="140" y2="140"/>
+          <polyline class="h-ram" fill="none" stroke="var(--muted)" stroke-width="1.5" vector-effect="non-scaling-stroke" opacity=".7"/>
+          ${f.gpu ? '<polyline class="h-gpu" fill="none" stroke="var(--warn)" stroke-width="1.8" vector-effect="non-scaling-stroke"/>' : ''}
+          <polyline class="h-cpu" fill="none" stroke="var(--accent)" stroke-width="2.2" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <div class="legend"><span class="lc">CPU</span><span class="lr">Memory</span>${f.gpu ? '<span class="lg">GPU</span>' : ''}<span class="scale">Scale 0–100%</span></div>
+      </section>
+      ${f.pihole ? `<section class="card"><div class="sec-head"><h3>Pi-hole</h3><span class="chip ph-state" hidden></span><span class="aside">Last 24 hours</span></div>
+        <div class="ph">
+          <div><div class="big ph-blocked">–</div><div class="k">Queries blocked</div></div>
+          ${ring('phpct','Share blocked')}
+        </div>
+        <div class="ph-grid" style="margin-top:10px">
+          <div><div class="v ph-total">–</div><div class="k">Total queries</div></div>
+          <div><div class="v ph-domains">–</div><div class="k">Blocklist domains</div></div>
+          <div><div class="v ph-clients">–</div><div class="k">Clients</div></div>
+        </div>
+        <p class="note err ph-err" hidden></p></section>` : ''}
+      ${docker ? `<section class="card"><div class="sec-head"><h3>Containers</h3><span class="aside c-count"></span></div>
+        <div class="clist"><p class="note">Loading containers…</p></div><p class="note err c-err" hidden></p></section>` : ''}
+    </div>`;
+  built = d.id + JSON.stringify(d.features);
+}
+
+const pts = (hist, k) => {
+  const n = hist.length; if (n < 2) return '';
+  return hist.map((h, i) => h[k] == null ? null : `${(i / (n - 1) * 600).toFixed(1)},${(140 - clamp(h[k] / 100) * 130).toFixed(1)}`).filter(Boolean).join(' ');
+};
+
+function renderDetail(d) {
+  if (built !== d.id + JSON.stringify(d.features)) build(d);
+  const m = d.metrics, u = detail;
+  $('.d-meta', u).textContent = m ? `${m.hostname}, ${m.os}, up ${fmtUptime(m.uptime_s)}${d.wol?.armed ? ', Wake-on-LAN ready' : ''}` : d.host;
+  const err = $('.d-err', u); err.hidden = d.online;
+  const pend = d.power_pending;
+  if (!d.online) err.textContent = pend === 'shutdown' ? `${d.name} is turned off.${d.features.wake ? ' Tap Start to turn it on.' : ''}`
+    : pend ? `${d.error}…` : `Can't reach the agent at ${d.host}: ${d.error || 'no response'}. Check it with "systemctl status nexuslab-agent".`;
+  err.className = 'note d-err' + (d.online || pend ? '' : ' err');
+  const act = $('.dact', u), f = d.features;
+  const asig = [d.online, f.power, f.wake, pend].join();
+  if (act && act._sig !== asig) {
+    act._sig = asig;
+    const canStart = !d.online && f.wake && pend !== 'wake';
+    const startTip = d.online ? 'Already on' : !f.wake ? "This machine can't be started remotely (no Wake-on-LAN)" : '';
+    const offTip = d.online ? '' : 'Only available while the machine is on';
+    act.innerHTML = (f.power || f.wake) ? `
+      <button class="btn${canStart ? ' primary' : ''}" data-power="on" ${canStart ? '' : 'disabled'} title="${startTip}">${pend === 'wake' ? 'Starting…' : 'Start'}</button>
+      <button class="btn" data-power="reboot" ${d.online && f.power ? '' : 'disabled'} title="${offTip}">Reboot</button>
+      <button class="btn danger" data-power="shutdown" ${d.online && f.power ? '' : 'disabled'} title="${offTip}">Shut down</button>` : '';
+  }
+  u.style.opacity = d.online || d.power_pending ? 1 : .6;
+  if (m) {
+    const c = m.cpu, r = m.ram, k = m.disk;
+    setRing(u, 'cpu', c.percent / 100, `${c.percent.toFixed(0)}%`, `${c.cores} cores${c.freq_mhz ? `, ${(c.freq_mhz / 1000).toFixed(1)} GHz` : ''}`);
+    setRing(u, 'ram', r.percent / 100, `${r.percent.toFixed(0)}%`, `${fmtBytes(r.used)} / ${fmtBytes(r.total)}`, .8, .92);
+    setRing(u, 'disk', k.percent / 100, `${k.percent.toFixed(0)}%`, `${fmtBytes(k.used)} / ${fmtBytes(k.total)}${k.temp_c != null ? `, ${Math.round(k.temp_c)}\u00a0°C` : ''}`, .8, .9);
+    setRing(u, 'temp', T(c.temp_c), c.temp_c != null ? `${Math.round(c.temp_c)}°` : 'n/a', c.temp_c == null ? 'No sensor' : c.temp_c >= 85 ? 'Running hot' : c.temp_c >= 70 ? 'Warm' : 'Normal', T(70), T(85));
+    const g = (m.gpus || [])[0];
+    if (d.features.gpu && g) {
+      $('.g-name', u).textContent = g.name.replace(/^NVIDIA\s+/, '');
+      $('.g-extra', u).textContent = g.fan != null ? `Fan ${g.fan}%` : '';
+      setRing(u, 'gutil', g.util / 100, `${g.util}%`, '');
+      setRing(u, 'vram', g.mem_used / g.mem_total, `${Math.round(g.mem_used / g.mem_total * 100)}%`, `${fmtBytes(g.mem_used)} / ${fmtBytes(g.mem_total)}`, .8, .95);
+      setRing(u, 'gtemp', T(g.temp_c), `${g.temp_c}°`, g.temp_c >= 83 ? 'Throttle range' : g.temp_c >= 75 ? 'Warm' : 'Normal', T(75), T(83));
+      setRing(u, 'gpow', g.power_limit_w ? g.power_w / g.power_limit_w : null, g.power_w != null ? `${Math.round(g.power_w)}W` : 'n/a', g.power_limit_w ? `of ${g.power_limit_w} W` : '', .8, .95);
+    } else if (d.features.gpu) $('.g-extra', u).textContent = 'No NVIDIA GPU detected';
+  }
+  const h = d.history || [];
+  $('.h-cpu', u).setAttribute('points', pts(h, 'cpu'));
+  $('.h-ram', u).setAttribute('points', pts(h, 'ram'));
+  const hg = $('.h-gpu', u); if (hg) hg.setAttribute('points', pts(h, 'gpu'));
+  if (d.features.pihole) renderPihole(d.pihole);
+  if (d.features.ollama) renderOllama(d);
+  if (d.features.docker === 'control' || d.features.docker === 'monitor') renderContainers(d);
+}
+
+function renderPihole(p) {
+  if (!p) return;
+  const err = $('.ph-err'); err.hidden = p.ok;
+  if (!p.ok) { err.textContent = `Pi-hole didn't answer: ${p.error}. Check its url and password in config.yaml.`; return; }
+  $('.ph-blocked').textContent = fmtNum(p.blocked);
+  $('.ph-total').textContent = fmtNum(p.total);
+  $('.ph-domains').textContent = fmtNum(p.domains);
+  $('.ph-clients').textContent = fmtNum(p.clients);
+  setRing(detail, 'phpct', p.percent != null ? p.percent / 100 : null, p.percent != null ? `${Number(p.percent).toFixed(1)}%` : '–', '', 2, 2);
+  const st = $('.ph-state'), on = String(p.blocking || '').toLowerCase() === 'enabled';
+  st.hidden = !p.blocking; st.textContent = on ? 'Blocking on' : 'Blocking off'; st.className = 'chip ph-state ' + (on ? 'good' : 'bad');
+}
+
+function untilText(iso) {
+  if (!iso) return '';
+  const ms = new Date(iso) - Date.now();
+  if (isNaN(ms) || ms > 365 * 864e5) return 'stays loaded';
+  if (ms <= 0) return 'unloading';
+  const m = Math.round(ms / 60000);
+  return m < 1 ? 'unloads in under a minute' : m < 90 ? `unloads in ${m} min` : `unloads in ${Math.round(m / 60)} h`;
+}
+function renderOllama(d) {
+  const o = d.ollama, box = $('.o-loaded');
+  if (!box) return;
+  const err = $('.o-err');
+  if (!o) return;
+  err.hidden = o.ok !== false;
+  if (o.ok === false) err.textContent = `Ollama didn't answer: ${o.error}`;
+  const loaded = o.loaded || [], installed = o.installed || [];
+  const ver = $('.o-ver'); ver.hidden = !o.version; ver.textContent = o.version ? `v${o.version}` : '';
+  $('.o-count').textContent = `${loaded.length} loaded`;
+  $('.o-n').textContent = installed.length;
+  const gpu = (d.metrics?.gpus || [])[0];
+  const loadedNames = new Set(loaded.map(m => m.name));
+  const sig = JSON.stringify([loaded.map(m => [m.name, m.vram]), installed.map(m => m.name), [...pending.entries()].filter(([k]) => k.startsWith(d.id + '/ollama:'))]);
+  if (box._sig !== sig) {
+    box._sig = sig;
+    box.innerHTML = loaded.length ? loaded.map(m => {
+      const busy = pending.get(`${d.id}/ollama:${m.name}`);
+      const pct = gpu && m.vram ? Math.min(100, m.vram / gpu.mem_total * 100) : 0;
+      return `<div class="om" data-model="${esc(m.name)}">
+        <div><div class="om-name">${esc(m.name)}</div>
+          <div class="om-meta">${fmtBytes(m.vram)} in VRAM${m.size && m.vram < m.size * 0.98 ? `, ${fmtBytes(m.size - m.vram)} in RAM` : ''}<span class="o-exp"></span></div></div>
+        <button class="btn" data-ollama="unload" ${busy ? 'disabled' : ''}>${busy === 'unload' ? 'Unloading…' : 'Unload'}</button>
+        ${gpu ? `<div class="om-bar" title="${pct.toFixed(0)}% of ${fmtBytes(gpu.mem_total)} VRAM"><i style="width:${pct}%"></i></div>` : ''}
+      </div>`;
+    }).join('') : '<p class="note">No models loaded, so the GPU is free.</p>';
+    $('.o-list').innerHTML = installed.length ? installed.map(m => {
+      const busy = pending.get(`${d.id}/ollama:${m.name}`);
+      const isLoaded = loadedNames.has(m.name);
+      const meta = [m.params, m.quant, fmtBytes(m.size)].filter(Boolean).join(', ');
+      return `<div class="om" data-model="${esc(m.name)}">
+        <div><div class="om-name">${esc(m.name)}</div><div class="om-meta">${esc(meta)}</div></div>
+        <button class="btn" data-ollama="load" ${busy || isLoaded ? 'disabled' : ''}>${busy === 'load' ? 'Loading…' : isLoaded ? 'Loaded' : 'Load'}</button>
+      </div>`;
+    }).join('') : '<p class="note">No models installed yet.</p>';
+  }
+  for (const m of loaded) {
+    const row = box.querySelector(`.om[data-model="${CSS.escape(m.name)}"] .o-exp`);
+    if (row) row.textContent = `, ${untilText(m.expires_at)}`;
+  }
+}
+
+function actionsFor(d, c) {
+  const busy = pending.get(`${d.id}/${c.name}`), logs = '<button class="btn" data-act="logs">Logs</button>';
+  if (d.features.docker !== 'control') return logs;
+  if (busy) return `<button class="btn" disabled>${{start:'Starting…',stop:'Stopping…',restart:'Restarting…'}[busy]}</button>${logs}`;
+  return (c.status === 'running'
+    ? '<button class="btn" data-act="restart">Restart</button><button class="btn danger" data-act="stop">Stop</button>'
+    : '<button class="btn" data-act="start">Start</button>') + logs;
+}
+function renderContainers(d) {
+  const list = $('.clist'), c = d.containers; if (!list) return;
+  if (!c) { if (!d.online) list.innerHTML = '<p class="note">Waiting for the device to come back online.</p>'; return; }
+  if (!c.ok && !c.items.length) { list._sig = null; list.innerHTML = `<p class="note err">${esc(c.error)}</p>`; return; }
+  const items = c.items, run = items.filter(i => i.status === 'running').length;
+  $('.c-count').textContent = `${run} of ${items.length} running${d.features.docker === 'monitor' ? ', view only' : ''}`;
+  const sig = JSON.stringify(items.map(i => [i.name, i.status, i.health, pending.get(`${d.id}/${i.name}`)]));
+  if (list._sig !== sig) {
+    list._sig = sig;
+    list.innerHTML = items.length ? items.map(i => `
+      <div class="crow" data-name="${esc(i.name)}">
+        <span class="dot ${i.status !== 'running' ? 'bad' : i.health === 'unhealthy' ? 'warn' : 'on'}" title="${esc(i.status)}"></span>
+        <div class="cid"><div class="cn">${esc(i.name)}</div><div class="ci">${esc(i.image)}</div></div>
+        <div class="cs c-cpu"></div><div class="cs c-mem"></div>
+        <div class="ca">${actionsFor(d, i)}</div>
+      </div>`).join('') : '<p class="note">No containers found. Check NEXUSLAB_CONTAINERS on the device.</p>';
+  }
+  for (const i of items) {
+    const row = list.querySelector(`.crow[data-name="${CSS.escape(i.name)}"]`); if (!row) continue;
+    const on = i.status === 'running';
+    row.querySelector('.c-cpu').innerHTML = on && i.cpu_percent != null ? `${i.cpu_percent.toFixed(1)}%<small>CPU</small>` : `<small>${esc(i.status)}</small>`;
+    row.querySelector('.c-mem').innerHTML = on && i.mem_used != null ? `${fmtBytes(i.mem_used)}<small>memory</small>` : '';
+  }
+  const ce = $('.c-err'); ce.hidden = c.ok; if (!c.ok) ce.textContent = `Couldn't refresh containers: ${c.error}`;
+}
+
+function render(state) {
+  if (!state) return;
+  lastState = state;
+  if (!selected || !state.devices.some(d => d.id === selected)) {
+    const h = location.hash.slice(1);
+    selected = state.devices.some(d => d.id === h) ? h : state.devices[0]?.id;
+  }
+  renderTabs(state);
+  updateChatModels(state);
+  const d = state.devices.find(x => x.id === selected);
+  if (d) renderDetail(d);
+  const on = state.devices.filter(x => x.online).length;
+  const offCount = state.devices.filter(x => !x.online && x.power_pending === 'shutdown').length;
+  $('#online-count').innerHTML = `<strong>${on} of ${state.devices.length}</strong> devices online${offCount ? `, ${offCount} turned off` : ''}`;
+  $('#logout').hidden = !state.auth;
+  tickUpdated();
+}
+function tickUpdated() { if (lastState) $('#updated').textContent = `Updated ${fmtAgo(lastState.generated)}`; }
+function showBanner(msg) { $('#banner').hidden = !msg; if (msg) $('#banner-text').textContent = msg; }
+async function poll() {
+  try { render(await api.state()); showBanner(null); }
+  catch (e) { showBanner(`Can't reach the NexusLab hub (${e.message}). Retrying every ${POLL_MS / 1000} seconds.`); }
+  setTimeout(poll, POLL_MS);
+}
+
+/* ---------------------------------------------------------------- toast */
+let toastTimer;
+function toast(msg, isErr) {
+  const t = $('#toast');
+  t.textContent = msg; t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 3200);
+}
+
+
+
+/* ---------- actions */
+const armed = new Map();
+
+async function powerClick(btn) {
+  const dev = selected, act = btn.dataset.power, key = `${dev}/power:${act}`;
+  const d = lastState.devices.find(x => x.id === dev);
+  const label = act === 'reboot' ? 'Reboot' : 'Shut down';
+  if (act === 'on') {
+    btn.disabled = true; btn.textContent = 'Starting…';
+    try {
+      await api.power(dev, 'on');
+      toast(`Starting ${d.name}. It usually takes 20 to 60 seconds.`);
+    } catch (err) {
+      toast(`Couldn't start ${d.name}: ${err.message}`, true);
+      btn.disabled = false; btn.textContent = 'Start';
+    }
+    try { render(await api.state()); } catch {}
+    return;
+  }
+  if (!armed.has(key)) {
+    btn.classList.add('arm'); btn.textContent = act === 'reboot' ? 'Confirm reboot' : 'Confirm shut down';
+    armed.set(key, setTimeout(() => { armed.delete(key); btn.classList.remove('arm'); btn.textContent = label; }, 3500));
+    return;
+  }
+  clearTimeout(armed.get(key)); armed.delete(key);
+  btn.disabled = true; btn.classList.remove('arm'); btn.textContent = act === 'reboot' ? 'Rebooting…' : 'Shutting down…';
+  try {
+    await api.power(dev, act);
+    toast(act === 'reboot' ? `Rebooting ${d.name}. It'll be back in a minute or two.` : `Shutting down ${d.name}. It stays off until you power it on.`);
+  } catch (err) {
+    toast(`Couldn't ${act === 'reboot' ? 'reboot' : 'shut down'} ${d.name}: ${err.message}`, true);
+    btn.disabled = false; btn.textContent = label;
+  }
+}
+
+async function ollamaClick(btn) {
+  const dev = selected, act = btn.dataset.ollama, model = btn.closest('.om').dataset.model, key = `${dev}/ollama:${model}`;
+  pending.set(key, act);
+  const d = lastState.devices.find(x => x.id === dev);
+  renderOllama(d);
+  try {
+    await api.ollama(dev, act, model);
+    toast(act === 'load' ? `Loaded ${model}` : `Unloaded ${model}`);
+  } catch (err) {
+    toast(`Couldn't ${act} ${model}: ${err.message}`, true);
+  } finally {
+    pending.delete(key);
+    try { render(await api.state()); } catch {}
+  }
+}
+detail.addEventListener('click', async e => {
+  const pbtn = e.target.closest('button[data-power]');
+  if (pbtn) return powerClick(pbtn);
+  const obtn = e.target.closest('button[data-ollama]');
+  if (obtn) return ollamaClick(obtn);
+  const btn = e.target.closest('button[data-act]'); if (!btn) return;
+  const dev = selected, name = btn.closest('.crow').dataset.name, act = btn.dataset.act, key = `${dev}/${name}`;
+  if (act === 'logs') return openLogs(dev, name);
+  if (act === 'stop' && !armed.has(key)) {
+    btn.classList.add('arm'); btn.textContent = 'Confirm stop';
+    armed.set(key, setTimeout(() => { armed.delete(key); btn.classList.remove('arm'); btn.textContent = 'Stop'; }, 3000));
+    return;
+  }
+  clearTimeout(armed.get(key)); armed.delete(key);
+  pending.set(key, act);
+  renderContainers(lastState.devices.find(x => x.id === dev));
+  try { await api.action(dev, name, act); toast({start:'Started',stop:'Stopped',restart:'Restarted'}[act] + ` ${name}`); }
+  catch (err) { toast(`Couldn't ${act} ${name}: ${err.message}`, true); }
+  finally { pending.delete(key); try { render(await api.state()); } catch {} }
+});
+
+/* ---------------------------------------------------------------- logs */
+const dlg = $('#logs');
+let logCtx = null, logTimer = null;
+async function loadLogs() {
+  if (!logCtx) return;
+  const body = $('#logs-body');
+  const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 40;
+  try {
+    const text = await api.logs(logCtx.dev, logCtx.name, $('#logs-tail').value);
+    body.textContent = text || 'No log output yet.';
+    $('#logs-meta').textContent = `${logCtx.devName}, updated ${new Date().toLocaleTimeString()}`;
+    if ($('#logs-follow').checked && (atBottom || logCtx.first)) body.scrollTop = body.scrollHeight;
+    logCtx.first = false;
+  } catch (e) {
+    body.textContent = `Couldn't load logs: ${e.message}`;
+  }
+}
+function openLogs(dev, name) {
+  const d = lastState.devices.find(x => x.id === dev);
+  logCtx = {dev, name, devName: d?.name || dev, first: true};
+  $('#logs-title').textContent = name;
+  $('#logs-body').textContent = 'Loading…';
+  dlg.showModal();
+  loadLogs();
+  clearInterval(logTimer);
+  logTimer = setInterval(() => { if ($('#logs-follow').checked) loadLogs(); }, POLL_MS);
+}
+function closeLogs() { clearInterval(logTimer); logCtx = null; if (dlg.open) dlg.close(); }
+$('#logs-close').onclick = closeLogs;
+dlg.addEventListener('close', () => { clearInterval(logTimer); logCtx = null; });
+$('#logs-refresh').onclick = () => { if (logCtx) logCtx.first = true; loadLogs(); };
+$('#logs-tail').onchange = () => { if (logCtx) logCtx.first = true; loadLogs(); };
+
+
+/* ---------------------------------------------------------------- demo data */
+const demo = DEMO ? (() => {
+  const GB = 1024 ** 3;
+  const now = () => Date.now() / 1000;
+  const walk = (o, k, base, spread, lo = 0, hi = 100) => { o[k] = clamp(o[k] + (base - o[k]) * .18 + (Math.random() - .5) * spread, lo, hi); return o[k]; };
+  const mk = (id, name, host, os, cores, ghz, ram, disk, base, features, ctrs = []) => ({
+    id, name, host: `http://${host}:9101`, features, base, cur: {...base}, cores, ghz, ram, disk, os, hostname: id,
+    boot: now() - (3 + Math.random() * 20) * 86400, history: [],
+    containers: ctrs.map(([n, img, cpu, mem, health]) => ({name: n, image: img, status: 'running', health: health || null,
+      started_at: null, cpu_base: cpu, cpu_percent: cpu, mem_used: mem * GB, mem_limit: ram})),
+  });
+  const devs = [
+    mk('minisforum', 'Minisforum', '192.168.1.10', 'Linux 6.8.0-45-generic', 16, 4.5, 32 * GB, 1000e9,
+      {cpu: 18, ram: 46, disk: 38, temp: 51, dtemp: 39}, {gpu: false, docker: 'control', pihole: false, power: true, ollama: false},
+      [['jellyfin', 'jellyfin/jellyfin:latest', 6, 1.4, 'healthy'], ['nextcloud', 'nextcloud:29-apache', 2, 0.6], ['uptime-kuma', 'louislam/uptime-kuma:1', 1, 0.15, 'healthy']]),
+    mk('nexus', 'Nexus AI PC', '192.168.1.11', 'Linux 6.8.0-45-generic', 20, 5.2, 64 * GB, 2000e9,
+      {cpu: 26, ram: 58, disk: 64, temp: 58, dtemp: 44, gpu: 62, vram: 71, gtemp: 66, gpow: 150}, {gpu: true, docker: 'monitor', pihole: false, power: true, ollama: true},
+      [['ollama', 'ollama/ollama:latest', 14, 6.2], ['open-webui', 'ghcr.io/open-webui/open-webui:main', 3, 0.9, 'healthy'],
+       ['comfyui', 'yanwk/comfyui-boot:cu124', 9, 4.1], ['searxng', 'searxng/searxng:latest', 1, 0.25], ['qdrant', 'qdrant/qdrant:latest', 2, 0.8]]),
+    mk('pi5', 'Raspberry Pi 5', '192.168.1.12', 'Linux 6.6.51+rpt-rpi-2712', 4, 2.4, 8 * GB, 128e9,
+      {cpu: 7, ram: 22, disk: 27, temp: 47, dtemp: null}, {gpu: false, docker: 'off', pihole: true, power: true, ollama: false}),
+    mk('beelink', 'Beelink', '192.168.1.13', 'Linux 6.8.0-45-generic', 8, 4.0, 16 * GB, 500e9,
+      {cpu: 12, ram: 35, disk: 52, temp: 49, dtemp: 37}, {gpu: false, docker: 'off', pihole: false, power: true, ollama: false}),
+  ];
+  const ph = {total: 48213, blocked: 9127, domains: 162847, blocking: 'enabled'};
+
+  function step(d, t) {
+    const c = d.cur, b = d.base;
+    walk(c, 'cpu', b.cpu, 14, 1, 100); walk(c, 'ram', b.ram, 2, 5, 98); walk(c, 'temp', b.temp + c.cpu * .25, 3, 30, 98);
+    if (b.dtemp != null) walk(c, 'dtemp', b.dtemp, 1, 25, 80);
+    if (d.features.gpu) { walk(c, 'gpu', b.gpu, 28, 0, 100); walk(c, 'vram', b.vram, 3, 5, 100); walk(c, 'gtemp', 38 + c.gpu * .45, 3, 30, 90); c.gpow = 22 + c.gpu * 1.8; }
+    d.history.push({t, cpu: +c.cpu.toFixed(1), ram: +c.ram.toFixed(1), gpu: d.features.gpu ? Math.round(c.gpu) : null});
+    if (d.history.length > 120) d.history.shift();
+  }
+  const t0 = now();
+  for (let i = 120; i > 0; i--) devs.forEach(d => step(d, t0 - i * 3));
+
+  return {
+    state() {
+      const t = now();
+      devs.forEach(d => step(d, t));
+      ph.total += Math.round(Math.random() * 18); ph.blocked += Math.round(Math.random() * 4);
+      return {generated: t, devices: devs.map(d => {
+        const c = d.cur;
+        for (const x of d.containers) if (x.status === 'running') x.cpu_percent = Math.max(0, x.cpu_base + (Math.random() - .5) * x.cpu_base);
+        return {
+          id: d.id, name: d.name, host: d.host, online: true, error: null, last_seen: t, features: d.features,
+          history: d.history,
+          metrics: {
+            hostname: d.hostname, os: d.os, uptime_s: t - d.boot,
+            cpu: {percent: c.cpu, cores: d.cores, freq_mhz: d.ghz * 1000 * (0.55 + c.cpu / 220), temp_c: c.temp, load: [c.cpu / 100 * d.cores * .8, 0, 0]},
+            ram: {percent: c.ram, used: c.ram / 100 * d.ram, total: d.ram},
+            disk: {percent: c.disk, used: c.disk / 100 * d.disk, total: d.disk, path: '/', temp_c: d.base.dtemp != null ? c.dtemp : null},
+            gpus: d.features.gpu ? [{name: 'NVIDIA GeForce RTX 4070', util: Math.round(c.gpu), mem_used: c.vram / 100 * 12 * GB, mem_total: 12 * GB,
+              temp_c: Math.round(c.gtemp), power_w: c.gpow, power_limit_w: 200, fan: Math.round(30 + c.gpu * .4)}] : [],
+          },
+          containers: d.features.docker !== 'off' ? {ok: true, items: d.containers.map(({cpu_base, ...x}) => ({...x}))} : null,
+          ollama: d.features.ollama ? {ok: true, version: '0.12.3',
+            loaded: [{name: 'llama3.1:8b', size: 5.6 * GB, vram: 5.6 * GB, expires_at: new Date(Date.now() + 4 * 60000).toISOString(), params: '8.0B', quant: 'Q4_K_M'}],
+            installed: [{name: 'llama3.1:8b', size: 4.9 * GB, params: '8.0B', quant: 'Q4_K_M'}, {name: 'nomic-embed-text:latest', size: 0.27 * GB, params: '137M', quant: 'F16'},
+              {name: 'qwen2.5-coder:7b', size: 4.7 * GB, params: '7.6B', quant: 'Q4_K_M'}]} : null,
+          pihole: d.features.pihole ? {ok: true, total: ph.total, blocked: ph.blocked, percent: ph.blocked / ph.total * 100, domains: ph.domains, clients: 14, blocking: ph.blocking} : null,
+        };
+      })};
+    },
+    action(dev, name, act) {
+      return new Promise(res => setTimeout(() => {
+        const x = devs.find(d => d.id === dev).containers.find(c => c.name === name);
+        x.status = act === 'stop' ? 'exited' : 'running';
+        res({name, action: act, status: x.status});
+      }, act === 'restart' ? 1400 : 900));
+    },
+    logs(dev, name, tail) {
+      const lines = {
+        jellyfin: ['[INF] Main: Jellyfin version: 10.10.3', '[INF] Emby.Server.Implementations.ApplicationHost: Kestrel listening on 0.0.0.0:8096', '[INF] Jellyfin.Api.Auth: Authentication request for "living-room-tv" has succeeded', '[INF] MediaBrowser.MediaEncoding: Transcoding with VAAPI (hevc -> h264)'],
+        ollama: ['[GIN] 200 | 1.842s | 172.18.0.3 | POST "/api/chat"', 'llama_model_loader: loaded meta data with 30 key-value pairs', 'offloaded 33/33 layers to GPU', 'time=... level=INFO msg="llama runner started in 2.11 seconds"'],
+      }[name] || ['INFO  Service started', 'INFO  Health check passed', 'DEBUG Handled request in 12ms', 'INFO  Config reloaded'];
+      const n = Math.min(Number(tail), 60), out = [], t = Date.now();
+      for (let i = n; i > 0; i--) out.push(`${new Date(t - i * 4100).toISOString()} ${lines[i % lines.length]}`);
+      return out.join('\n');
+    },
+  };
+})() : null;
+
+
+/* ---------- chat */
+const chatLog = $('#chat-log'), chatInput = $('#chat-input'), chatSend = $('#chat-send'), modelSel = $('#chat-model');
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+let chat = store.get('nexuslab-chat', []);
+let chatBusy = null;   // AbortController while a reply streams
+
+function setView(v) {
+  const isChat = v === 'chat';
+  $('#chat').hidden = !isChat;
+  tabs.hidden = isChat; detail.hidden = isChat;
+  document.querySelectorAll('.vbtn').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === v));
+  try { history.replaceState(null, '', isChat ? '#chat' : (selected ? '#' + selected : location.pathname)); } catch {}
+  if (isChat) { renderChat(); setTimeout(() => chatInput.focus({preventScroll: true}), 50); window.scrollTo(0, document.body.scrollHeight); }
+}
+document.querySelectorAll('.vbtn').forEach(b => b.onclick = () => setView(b.dataset.view));
+
+function updateChatModels(state) {
+  const dev = state.devices.find(d => d.features.ollama && d.ollama);
+  const o = dev?.ollama || {};
+  const names = (o.installed || []).map(m => m.name).filter(n => !/embed/i.test(n));
+  const loaded = (o.loaded || []).map(m => m.name);
+  const sig = names.join('|') + '#' + loaded.join('|');
+  if (modelSel._sig === sig) return;
+  modelSel._sig = sig;
+  const saved = store.get('nexuslab-chat-model', '');
+  const pick = names.includes(saved) ? saved : (names.find(n => loaded.includes(n)) || names[0] || '');
+  modelSel.innerHTML = names.length
+    ? names.map(n => `<option value="${esc(n)}" ${n === pick ? 'selected' : ''}>${esc(n)}${loaded.includes(n) ? ' (loaded)' : ''}</option>`).join('')
+    : '<option value="">No models found</option>';
+}
+modelSel.onchange = () => store.set('nexuslab-chat-model', modelSel.value);
+
+const inlineMd = t => t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+function md(text) {
+  let html = '', list = false;
+  for (const line of esc(text).split('\n')) {
+    const b = line.match(/^\s*(?:[-*•]|\d+\.)\s+(.*)/), h = line.match(/^#{1,4}\s+(.*)/);
+    if (b) { if (!list) { html += '<ul>'; list = true; } html += `<li>${inlineMd(b[1])}</li>`; continue; }
+    if (list) { html += '</ul>'; list = false; }
+    if (h) html += `<p class="mh">${inlineMd(h[1])}</p>`;
+    else if (line.trim()) html += `<p>${inlineMd(line)}</p>`;
+  }
+  return html + (list ? '</ul>' : '');
+}
+const stripThink = t => t.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trimStart();
+
+function msgHTML(m, i) {
+  if (m.role === 'user') return `<div class="msg user">${esc(m.content)}</div>`;
+  const body = m.error ? esc(m.error) : (stripThink(m.content) ? md(stripThink(m.content)) : '<span class="typing" aria-label="Thinking"><i></i><i></i><i></i></span>');
+  return `<div class="msg bot${m.error ? ' err' : ''}" data-i="${i}"><span class="who">NexusLab${m.model ? `, ${esc(m.model)}` : ''}</span>${body}</div>`;
+}
+function renderChat() {
+  chatLog.innerHTML = chat.length ? chat.map(msgHTML).join('')
+    : '<p class="chat-empty">Ask anything about your homelab. Every message includes live data from all four machines.</p>';
+  $('#chat-chips').hidden = chat.length > 0;
+}
+function updateLast() {
+  const i = chat.length - 1, el = chatLog.querySelector(`.msg.bot[data-i="${i}"]`);
+  if (el) el.outerHTML = msgHTML(chat[i], i); else renderChat();
+  const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 160;
+  if (nearBottom) window.scrollTo(0, document.body.scrollHeight);
+}
+function saveChat() { store.set('nexuslab-chat', chat.slice(-30).map(({role, content, model, error}) => ({role, content, model, error}))); }
+
+async function sendChat(text) {
+  text = text.trim();
+  if (!text || chatBusy) return;
+  chat.push({role: 'user', content: text});
+  const reply = {role: 'assistant', content: '', model: modelSel.value};
+  chat.push(reply);
+  renderChat(); window.scrollTo(0, document.body.scrollHeight);
+  chatInput.value = ''; autoGrow();
+  chatBusy = new AbortController();
+  chatSend.textContent = 'Stop';
+  const history = chat.slice(0, -1).filter(m => !m.error).map(({role, content}) => ({role, content: role === 'assistant' ? stripThink(content) : content}));
+  try {
+    if (DEMO) { await demoChat(reply); }
+    else {
+      const r = await fetch('/api/chat', {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({model: modelSel.value, messages: history}), signal: chatBusy.signal});
+      if (r.status === 401) { location.href = '/login'; return; }
+      if (!r.ok) { let m = `HTTP ${r.status}`; try { m = (await r.json()).detail || m; } catch {} throw new Error(m); }
+      const reader = r.body.getReader(), dec = new TextDecoder();
+      let buf = '';
+      for (;;) {
+        const {value, done} = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, {stream: true});
+        let nl;
+        while ((nl = buf.indexOf('\n')) >= 0) {
+          const line = buf.slice(0, nl).trim(); buf = buf.slice(nl + 1);
+          if (!line) continue;
+          let obj; try { obj = JSON.parse(line); } catch { continue; }
+          if (obj.error) throw new Error(obj.error);
+          if (obj.model && !obj.message) reply.model = obj.model;
+          if (obj.message?.content) { reply.content += obj.message.content; updateLast(); }
+        }
+      }
+    }
+    if (!stripThink(reply.content)) reply.error = 'The model returned an empty reply. Try again or pick another model.';
+  } catch (e) {
+    if (e.name === 'AbortError') { if (!reply.content) reply.error = 'Stopped.'; }
+    else reply.error = `Couldn't get an answer: ${e.message}`;
+  } finally {
+    chatBusy = null; chatSend.textContent = 'Send';
+    updateLast(); saveChat();
+  }
+}
+
+function autoGrow() { chatInput.style.height = 'auto'; chatInput.style.height = Math.min(chatInput.scrollHeight, 140) + 'px'; }
+chatInput.addEventListener('input', autoGrow);
+chatInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia('(hover: hover)').matches) { e.preventDefault(); sendChat(chatInput.value); }
+});
+$('#chat-form').addEventListener('submit', e => { e.preventDefault(); if (chatBusy) chatBusy.abort(); else sendChat(chatInput.value); });
+$('#chat-chips').addEventListener('click', e => { const b = e.target.closest('.chip-btn'); if (b) sendChat(b.textContent); });
+$('#chat-new').onclick = () => { if (chatBusy) chatBusy.abort(); chat = []; saveChat(); renderChat(); chatInput.focus(); };
+
+async function demoChat(reply) {
+  const st = lastState, lines = [];
+  for (const d of st.devices) {
+    const m = d.metrics;
+    lines.push(`**${d.name}**: ${d.online ? 'online' : 'offline'}`);
+    lines.push(`- CPU ${m.cpu.percent.toFixed(0)}%, ${Math.round(m.cpu.temp_c)} °C`);
+    lines.push(`- Memory ${m.ram.percent.toFixed(0)}%, SSD ${m.disk.percent.toFixed(0)}% full`);
+    const g = (m.gpus || [])[0];
+    if (g) lines.push(`- RTX 4070 at ${g.util}% load, ${g.temp_c} °C, ${fmtBytes(g.mem_used)} of VRAM used`);
+    if (d.containers) lines.push(`- Containers: ${d.containers.items.filter(i => i.status === 'running').length} of ${d.containers.items.length} running`);
+    if (d.pihole) lines.push(`- Pi-hole blocked ${fmtNum(d.pihole.blocked)} of ${fmtNum(d.pihole.total)} queries (${d.pihole.percent.toFixed(1)}%)`);
+    lines.push('');
+  }
+  lines.push('All four machines are healthy. Nothing needs your attention.');
+  for (const word of lines.join('\n').split(/(?<=\s)/)) {
+    if (chatBusy?.signal.aborted) throw Object.assign(new Error('stopped'), {name: 'AbortError'});
+    reply.content += word; updateLast();
+    await new Promise(r => setTimeout(r, 18));
+  }
+}
+
+$('#demo-tag').hidden = !DEMO;
+setInterval(tickUpdated, 1000);
+if (location.hash === '#chat') setTimeout(() => setView('chat'), 0);
+poll();
+})();
+</script>
+</body>
+</html>
